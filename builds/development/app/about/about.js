@@ -1,13 +1,28 @@
-angular.module('ngFit.about',['ngRoute'])
+;(function(){
+	'use strict';
+	angular
+		.module('ngFit.about',['ngRoute'])
+		.config(configAbout)
+		.controller('AboutCtrl',AboutCtrl);
 
-.config(['$routeProvider',function($routeProvider){
-	$routeProvider.
-		when("/about",{
-			templateUrl: "app/about/about.html",
-			controller: 'AboutCtrl'
-		});
-}])
+	AboutCtrl.$inject = ['$scope','$rootScope'];
 
-.controller('AboutCtrl', ['$scope', function($scope){
-	$scope.title = "Это itle";
-}])
+	function AboutCtrl($scope,$rootScope,$log){
+		var vm = this; //чтобы не путаться в областях видимости(не забывать в конфиге про контроллер эз)
+
+		$rootScope.curPath = 'about';
+
+		vm.title = "О нас";
+	}
+
+	configAbout.$inject = ['$routeProvider'];
+
+	function configAbout($routeProvider){
+		$routeProvider.
+			when("/about",{
+				templateUrl: "app/about/about.html",
+				controller: 'AboutCtrl',
+				controllerAs: 'vm'
+			});
+	}
+})();

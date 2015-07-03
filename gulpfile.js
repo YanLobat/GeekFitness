@@ -8,14 +8,15 @@ var gulp = require('gulp'),
     
 var bc = './bower_components/';
 
-gulp.task('app', function() {
+gulp.task('js', function() {
   gulp.src('builds/development/app/**/*.js')
-    .pipe(concat())
-    .pipe(gulp.dest('development/app/build.js'))
+    .pipe(concat('app.js'))
+    .pipe(gulp.dest('builds/dist/app/'))
 });
 
 gulp.task('html', function() {
   gulp.src('builds/development/**/*.html')
+    .pipe(gulp.dest('builds/dist/'))
 });
 
 gulp.task('sass', function () {
@@ -23,24 +24,30 @@ gulp.task('sass', function () {
       .pipe(sass())
       .pipe(concat('style.min.css'))
       .pipe(csso())
-      .pipe(gulp.dest('builds/development/css/'));
+      .pipe(gulp.dest('builds/dist/css/'));
+});
+
+gulp.task('img', function() {
+  gulp.src('builds/development/img/**/*')
+    .pipe(gulp.dest('builds/dist/img/'));
 });
 
 gulp.task('watch', function() {
-  gulp.watch('builds/development/app/**/*', ['app']);
-  gulp.watch('builds/development/sass/**/*', ['sass']);
+  gulp.watch('builds/development/app/**/*.js', ['js']);
+  gulp.watch('builds/development/sass/**/*.scss', ['sass']);
   gulp.watch('builds/development/**/*.html', ['html']);
+  gulp.watch('builds/development/img/**/*', ['img']);
 });
 
 gulp.task('libs', function() {
   gulp.src(bc+'jquery/dist/jquery.js')
-      .pipe(gulp.dest('./builds/development/libs/jquery/'));
+      .pipe(gulp.dest('./builds/dist/libs/jquery/'));
 
   gulp.src(bc+'bootstrap/dist/**/*.*')
-      .pipe(gulp.dest('./builds/development/libs/bootstrap/'));
+      .pipe(gulp.dest('./builds/dist/libs/bootstrap/'));
 
   gulp.src(bc+'bootstrap-material-design/dist/**/*.*')
-      .pipe(gulp.dest('./builds/development/libs/bootstrap-material-design/'));
+      .pipe(gulp.dest('./builds/dist/libs/bootstrap-material-design/'));
 
   gulp.src([bc+'angular/angular.js',
             bc+'angular-animate/angular-animate.js',
@@ -51,12 +58,15 @@ gulp.task('libs', function() {
             bc+'angular-route/angular-route.js',
             bc+'angular-sanitize/angular-sanitize.js',
             bc+'angular-touch/angular-touch.js',
+            bc+'firebase/firebase.js',
+            bc+'angularfire/dist/angularfire.js',
           ])
-      .pipe(gulp.dest('./builds/development/libs/angular/'));
+      .pipe(concat('angular.concat.js'))
+      .pipe(gulp.dest('./builds/dist/libs/angular/'));
 });
 
 gulp.task('webserver', function() {
-  gulp.src('builds/development/')
+  gulp.src('builds/dist/')
       .pipe(webserver({
         livereload: true,
         open: true
@@ -65,9 +75,10 @@ gulp.task('webserver', function() {
 
 gulp.task('default', [
   'libs',
-  'watch',
   'html',
-  'app',
+  'img',
+  'js',
   'sass',
-  'webserver'
+  'webserver',
+  'watch'
 ]);
