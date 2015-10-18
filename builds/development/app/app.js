@@ -9,7 +9,8 @@ $.material.init();
 				'ngFit.main',
 				'ngFit.fitfire.service',
 				'ngFit.about',
-				'ngFit.contact'
+				'ngFit.contact',
+				'ngFit.auth'
 				])
 		.constant('FIREBASE_URL', "https://yanfit.firebaseio.com/")
 		.config(Config);

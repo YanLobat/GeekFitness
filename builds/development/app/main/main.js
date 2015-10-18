@@ -11,11 +11,23 @@
 
 			var vm = this; //чтобы не путаться в областях видимости
 
+			fitfire.getUsers(function(_d){
+				vm.users = _d;
+			});
+
+			vm.user = {
+				name : null,
+				age : 0
+			};
+
+			vm.addUser = function(){
+				fitfire.addUser(vm.user);
+			};
+
 			$rootScope.curPath = 'main';//что-то вроде глобальной переменной для использования во вьюхах
 
 			vm.title = "Это Главная";
 			vm.name = "Yan";
-			vm.users = fitfire;
 			
 			$scope.clickFunction = function(name){
 				alert('Hi,'+ name);

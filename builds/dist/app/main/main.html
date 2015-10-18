@@ -8,3 +8,8 @@
 <pre>
 	{{ vm.users| json}}
 </pre>
+<form name="newUser" ng-submit="vm.addUser()">
+	<input class="form-control" type="text" ng-model="vm.user.name">
+	<input class="form-control" type="number" ng-model="vm.user.age">
+	<button class="btn btn-primary">Add user</button>
+</form>

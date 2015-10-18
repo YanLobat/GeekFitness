@@ -9,7 +9,8 @@ $.material.init();
 				'ngFit.main',
 				'ngFit.fitfire.service',
 				'ngFit.about',
-				'ngFit.contact'
+				'ngFit.contact',
+				'ngFit.auth'
 				])
 		.constant('FIREBASE_URL', "https://yanfit.firebaseio.com/")
 		.config(Config);
@@ -34,10 +35,19 @@ $.material.init();
 
 			var db = new Firebase(FIREBASE_URL);
 			var db_obj = $firebaseObject(db);
+			var db_arr = $firebaseArray(db);
 
+			var users_obj = db.child('Users');
+			var users_arr = $firebaseArray(users_obj);
+			this.getUsers = function(cb){
+				return users_arr.$loaded(cb);
+			};
 			db_obj.$loaded(function(){
 				self.db_obj = db_obj;					
 			});
+			this.addUser = function(_user){
+				users_obj.push(_user)
+			};
 		};
 })();
 ;(function(){
@@ -68,6 +78,31 @@ $.material.init();
 			});
 	}
 })();
+;(function(){
+	"use strict";
+	angular
+		.module('ngFit.auth', ['firebase'])
+		.controller('AuthCtrl',AuthCtrl);
+
+		AuthCtrl.$inject = ['$scope','$rootScope','$firebaseAuth'];
+
+		function AuthCtrl($scope,$rootScope,$firebaseAuth){
+			var ref = new Firebase("https://yanfit.firebaseio.com");
+		    var auth = $firebaseAuth(ref);
+
+		    $scope.login = function() {
+		      $scope.authData = null;
+		      $scope.error = null;
+
+		      auth.$authAnonymously().then(function(authData) {
+		        $scope.authData = authData;
+		      }).catch(function(error) {
+		        $scope.error = error;
+		      });
+		    };
+		}
+})();
+
 ;(function(){
 	'use strict';
 	angular
@@ -108,11 +143,23 @@ $.material.init();
 
 			var vm = this; //чтобы не путаться в областях видимости
 
+			fitfire.getUsers(function(_d){
+				vm.users = _d;
+			});
+
+			vm.user = {
+				name : null,
+				age : 0
+			};
+
+			vm.addUser = function(){
+				fitfire.addUser(vm.user);
+			};
+
 			$rootScope.curPath = 'main';//что-то вроде глобальной переменной для использования во вьюхах
 
 			vm.title = "Это Главная";
 			vm.name = "Yan";
-			vm.users = fitfire;
 			
 			$scope.clickFunction = function(name){
 				alert('Hi,'+ name);
