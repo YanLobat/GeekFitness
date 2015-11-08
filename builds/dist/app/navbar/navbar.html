@@ -1,4 +1,4 @@
-  <div class="navbar navbar-default">
+  <div class="navbar navbar-default" ng-controller="AuthController as vm">
       <div class="navbar-header">
           <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-responsive-collapse">
               <span class="icon-bar"></span>
@@ -13,8 +13,8 @@
               <li ng-class="{'active':(curPath == 'about')}"><a href="/about">About<div class="ripple-wrapper"></div></a></li>
           </ul>
           <ul class="nav navbar-nav navbar-right">
-              <li><a data-toggle="modal" data-target="#sign-in-dialog" href="javascript(0);">Sign In</a></li>
-
+               <li ng-hide="vm.name"><a data-toggle="modal" href="#" ng-click="vm.login();">Sign In With Github</a></li>
+               <li ng-if="vm.name"><span>{{ vm.name }}</span></li>
           </ul>
       </div>
   </div>

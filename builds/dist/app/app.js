@@ -10,7 +10,7 @@ $.material.init();
 				'ngFit.fitfire.service',
 				'ngFit.about',
 				'ngFit.contact',
-				'ngFit.auth'
+				'ngFit.navbar'
 				])
 		.constant('FIREBASE_URL', "https://yanfit.firebaseio.com/")
 		.config(Config);
@@ -80,7 +80,7 @@ $.material.init();
 })();
 ;(function(){
 	"use strict";
-	angular
+	/*angular
 		.module('ngFit.auth', ['firebase'])
 		.controller('AuthCtrl',AuthCtrl);
 
@@ -101,6 +101,7 @@ $.material.init();
 		      });
 		    };
 		}
+		*/
 })();
 
 ;(function(){
@@ -179,6 +180,27 @@ $.material.init();
 })();
 ;(function(){
 	'use strict';
-	angular.module('ngFit.navbar',['ngRoute']);
+	angular
+		.module('ngFit.navbar',[
+				   'ngRoute'
+		])
+		.controller('AuthController', AuthController);
+
+	function AuthController($scope){
+		var vm = this;
+		vm.name = null;
+		vm.login = function(){
+			var ref = new Firebase("https://yanfit.firebaseio.com");
+			ref.authWithOAuthPopup("github", function(error, authData) {
+			  if (error) {
+			    console.log("Login Failed!", error);
+			  } else {
+			  	vm.name = authData.github.username;
+			  	console.log(authData.github.username);
+			    console.log("Authenticated successfully with payload:", authData);
+			  }
+			})
+		}
+	}
 })();
 

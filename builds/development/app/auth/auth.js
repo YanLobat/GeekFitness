@@ -1,6 +1,6 @@
 ;(function(){
 	"use strict";
-	angular
+	/*angular
 		.module('ngFit.auth', ['firebase'])
 		.controller('AuthCtrl',AuthCtrl);
 
@@ -21,4 +21,5 @@
 		      });
 		    };
 		}
+		*/
 })();
