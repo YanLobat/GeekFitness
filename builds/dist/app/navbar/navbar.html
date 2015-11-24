@@ -13,8 +13,8 @@
               <li ng-class="{'active':(curPath == 'about')}"><a href="/about">About<div class="ripple-wrapper"></div></a></li>
           </ul>
           <ul class="nav navbar-nav navbar-right">
-               <li ng-hide="vm.name"><a data-toggle="modal" href="#" ng-click="vm.login();">Sign In With Github</a></li>
-               <li ng-if="vm.name"><span>{{ vm.name }}</span></li>
+               <li class="signing" ng-show="!vm.name"><a href="#" ng-click="vm.click($event);">Sign In With Github</a></li>
+               <li class="after_sign_name" ng-show="vm.name" ><a href="#">{{ vm.name }}</a></li>
           </ul>
       </div>
   </div>
