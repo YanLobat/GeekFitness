@@ -14,7 +14,6 @@
             .then(
             	function (authData,event) {
             		if (event){
-						console.log('stop');
 						event.stopPropagation();
 						event.preventDefault();	
 					}
@@ -41,6 +40,8 @@
 			  		console.log(authData.github.username);
 			    	console.log("Authenticated successfully with payload:", authData);
 			    	deferred.resolve(authData);
+			    	$rootScope.login = true;
+			    	$rootScope.name = vm.name;
 			  	});
 			  	if (event){
 					event.stopPropagation();

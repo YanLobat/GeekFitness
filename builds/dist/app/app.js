@@ -1,5 +1,4 @@
 $.material.init();
-
 (function () {
 	'use strict';
 	//подключение модулей различных страниц
@@ -10,7 +9,8 @@ $.material.init();
 				'ngFit.fitfire.service',
 				'ngFit.about',
 				'ngFit.contact',
-				'ngFit.navbar'
+				'ngFit.navbar',
+				'youtube-embed'
 				])
 		.constant('FIREBASE_URL', "https://yanfit.firebaseio.com/")
 		.config(Config);
@@ -29,8 +29,8 @@ $.material.init();
 	angular
 		.module('ngFit.fitfire.service',['firebase'])
 		.service('fitfire', fitfire);
-		fitfire.$inject = ['FIREBASE_URL','$firebaseObject','$firebaseArray'];
-		function fitfire(FIREBASE_URL,$firebaseObject,$firebaseArray){
+		fitfire.$inject = ['$rootScope','FIREBASE_URL','$firebaseObject','$firebaseArray'];
+		function fitfire($rootScope,FIREBASE_URL,$firebaseObject,$firebaseArray){
 			var self = this;
 
 			var db = new Firebase(FIREBASE_URL);
@@ -39,14 +39,23 @@ $.material.init();
 
 			var users_obj = db.child('Users');
 			var users_arr = $firebaseArray(users_obj);
+			var exercises_obj = db.child('Exercises');
+			var exercises_arr = $firebaseArray(exercises_obj);
 			this.getUsers = function(cb){
 				return users_arr.$loaded(cb);
+			};
+			this.getExercises = function(cb){
+				return exercises_arr.$loaded(cb);
 			};
 			db_obj.$loaded(function(){
 				self.db_obj = db_obj;					
 			});
 			this.addUser = function(_user){
-				users_obj.push(_user)
+				users_obj.push(_user);
+			};
+			this.addExercise = function(_exercise){
+				_exercise.added = $rootScope.name;
+				exercises_obj.push(_exercise);
 			};
 		};
 })();
@@ -141,30 +150,33 @@ $.material.init();
 	MainCtrl.$inject = ['$scope','$rootScope','$log','fitfire'];
 
 	function MainCtrl($scope,$rootScope,$log,fitfire){
-
+			$rootScope.login = false;
 			var vm = this; //чтобы не путаться в областях видимости
 
 			fitfire.getUsers(function(_d){
 				vm.users = _d;
 			});
-
+			fitfire.getExercises(function(_d){
+				vm.exercises = _d;
+			});
 			vm.user = {
 				name : null,
 				age : 0
 			};
-
+			vm.exercise = {
+				full_name: null
+			}
 			vm.addUser = function(){
 				fitfire.addUser(vm.user);
 			};
-
+			vm.addExercise = function(){
+				if ($rootScope.login){
+					vm.author = $rootScope.name;
+					fitfire.addExercise(vm.exercise);
+				}
+			};
 			$rootScope.curPath = 'main';//что-то вроде глобальной переменной для использования во вьюхах
 
-			vm.title = "Это Главная";
-			vm.name = "Yan";
-			
-			$scope.clickFunction = function(name){
-				alert('Hi,'+ name);
-			}
 	}
 
 	configMain.$inject = ['$routeProvider'];
@@ -194,7 +206,6 @@ $.material.init();
             .then(
             	function (authData,event) {
             		if (event){
-						console.log('stop');
 						event.stopPropagation();
 						event.preventDefault();	
 					}
@@ -221,6 +232,8 @@ $.material.init();
 			  		console.log(authData.github.username);
 			    	console.log("Authenticated successfully with payload:", authData);
 			    	deferred.resolve(authData);
+			    	$rootScope.login = true;
+			    	$rootScope.name = vm.name;
 			  	});
 			  	if (event){
 					event.stopPropagation();

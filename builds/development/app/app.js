@@ -1,5 +1,4 @@
 $.material.init();
-
 (function () {
 	'use strict';
 	//подключение модулей различных страниц
@@ -10,7 +9,8 @@ $.material.init();
 				'ngFit.fitfire.service',
 				'ngFit.about',
 				'ngFit.contact',
-				'ngFit.navbar'
+				'ngFit.navbar',
+				'youtube-embed'
 				])
 		.constant('FIREBASE_URL', "https://yanfit.firebaseio.com/")
 		.config(Config);

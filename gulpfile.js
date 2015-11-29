@@ -60,6 +60,7 @@ gulp.task('libs', function() {
             bc+'angular-touch/angular-touch.js',
             bc+'firebase/firebase.js',
             bc+'angularfire/dist/angularfire.js',
+            bc+'angular-youtube-embed/src/angular-youtube-embed.js'
           ])
       .pipe(concat('angular.concat.js'))
       .pipe(gulp.dest('./builds/dist/libs/angular/'));
