@@ -5,16 +5,19 @@
 		.service('fitfire', fitfire);
 		fitfire.$inject = ['$rootScope','FIREBASE_URL','$firebaseObject','$firebaseArray'];
 		function fitfire($rootScope,FIREBASE_URL,$firebaseObject,$firebaseArray){
-			var self = this;
+			var vm = this;
 
-			var db = new Firebase(FIREBASE_URL);
-			var db_obj = $firebaseObject(db);
-			var db_arr = $firebaseArray(db);
+			vm.db = new Firebase(FIREBASE_URL);
+			var db_obj = $firebaseObject(vm.db);
+			var db_arr = $firebaseArray(vm.db);
 
-			var users_obj = db.child('Users');
+			var users_obj = vm.db.child('Users');
 			var users_arr = $firebaseArray(users_obj);
-			var exercises_obj = db.child('Exercises');
+			var exercises_obj = vm.db.child('Exercises');
 			var exercises_arr = $firebaseArray(exercises_obj);
+			this.isUser = function(name){
+				console.log(users_arr[0]);
+			};
 			this.getUsers = function(cb){
 				return users_arr.$loaded(cb);
 			};
@@ -22,7 +25,7 @@
 				return exercises_arr.$loaded(cb);
 			};
 			db_obj.$loaded(function(){
-				self.db_obj = db_obj;					
+				vm.db_obj = db_obj;					
 			});
 			this.addUser = function(_user){
 				users_obj.push(_user);

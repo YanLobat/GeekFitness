@@ -24,6 +24,8 @@
 			vm.exercise = {
 				full_name: null
 			}
+			var currentUser = fitfire.db.getAuth();
+			console.log(currentUser);
 			vm.addUser = function(){
 				fitfire.addUser(vm.user);
 			};

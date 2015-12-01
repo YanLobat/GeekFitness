@@ -3,12 +3,12 @@
 	angular
 		.module('ngFit.navbar',['ngRoute'])
 		.controller('AuthController', AuthController);
-	AuthController.$inject = ['$scope','$rootScope'];
-	function AuthController($scope,$rootScope){
+	AuthController.$inject = ['$scope','$rootScope','FIREBASE_URL','fitfire'];
+	function AuthController($scope,$rootScope,FIREBASE_URL,fitfire){
 		var vm = this;
 		$rootScope.curPath = 'navbar';
 		vm.name = "";
-		vm.ref = new Firebase("https://yanfit.firebaseio.com");
+		vm.ref = new Firebase(FIREBASE_URL);
 		vm.handle = function(promise,event){
         $.when(promise)
             .then(
@@ -40,8 +40,8 @@
 			  		console.log(authData.github.username);
 			    	console.log("Authenticated successfully with payload:", authData);
 			    	deferred.resolve(authData);
+			    	fitfire.isUser(vm.name);
 			    	$rootScope.login = true;
-			    	$rootScope.name = vm.name;
 			  	});
 			  	if (event){
 					event.stopPropagation();
@@ -51,6 +51,22 @@
 			});
 			return deferred.promise();
 		};
+		vm.logout = function(event){
+			if (event){
+				event.stopPropagation();
+				event.preventDefault();	
+			}
+			vm.ref.unauth();
+		};
+		vm.check = function(){
+			var currentUser = fitfire.db.getAuth();
+			if (currentUser){
+				vm.name = currentUser.github.username;
+				return true;
+			}
+			else
+				return false;
+		}
 	}
 })();
 

@@ -1,36 +1,41 @@
-<h1>Добавь упражнение</h1>
-<form name="newUser" ng-submit="vm.addExercise()">
-	<input class="form-control" type="text" ng-model="vm.exercise.full_name">
-	<input class="form-control" type="text" ng-model="vm.exercise.video_url">
-	<textarea class="form-control" ng-model="vm.exercise.description"></textarea>
-	<button class="btn btn-primary">Add exercise</button>
-</form>
-<div class="col-xs-12 col-md-12">
-	<div class="col-xs-12 col-md-4" ng-repeat="exercise in vm.exercises">
-		<div class="panel-body">
-		    <div class="embed-responsive embed-responsive-16by9" class="text-center" ng-show="exercise.video_url">
-		        <youtube-video class="embed-responsive-item" video-url="exercise.video_url"></youtube-video>
-		    </div>
-		    <h2>{{ exercise.full_name }}</h2>
-
-		    <div>
-		        {{ exercise.description | limitTo: 600 }}<span
-		            ng-show="exercise.description.length > 600">...</span>
-		    </div>
-		    <p>{{ exercise.added }}</p>
-		    <!--<div class="exercise-list-buttons">
-		        <a ui-sref="exercises.show({ id: exercise.$id })" class="btn btn-info">
-		            View
-		        </a>
-		        <a ui-sref="exercises.update({ id: exercise.$id })" ng-show="vm.isExerciseOwner(exercise)"
-		           class="btn btn-primary">
-		            Edit
-		        </a>
-		        <button class="btn btn-danger" ng-show="vm.isExerciseOwner(exercise)"
-		                ng-click="vm.removeExercise(exercise)">
-		            Remove
-		        </button>
-		    </div>-->
+<div class="row">
+	<div class="col-xs-12 col-md-12" ng-if="$root.login"> 
+		<h1>Добавь упражнение</h1>
+		<form name="newUser" ng-submit="vm.addExercise()">
+			<input class="form-control" type="text" ng-model="vm.exercise.full_name">
+			<input class="form-control" type="text" ng-model="vm.exercise.video_url">
+			<textarea class="form-control" ng-model="vm.exercise.description"></textarea>
+			<button class="btn btn-inverse">Add exercise</button>
+		</form>
+	</div>
+	<div class="col-xs-12 col-md-12">
+		<div class="col-xs-12 col-md-4" ng-repeat="exercise in vm.exercises">
+			<div class="card card-inverse">
+				<div class="card-height-indicator"></div>
+				<div class="card-content  panel-body">
+					<div class="card-body">
+					 	<h2>{{ exercise.full_name }}</h2>
+					    <div class="card-image embed-responsive embed-responsive-16by9" class="text-center" ng-show="exercise.video_url">
+					        <youtube-video class="embed-responsive-item" video-url="exercise.video_url"></youtube-video>
+					    </div>	
+			            <p>{{ exercise.description | limitTo: 600 }}</p>
+				   		<author>Добавил: {{ exercise.added }}</author>
+				   	</div>
+				    <!--<div class="exercise-list-buttons">
+				        <a ui-sref="exercises.show({ id: exercise.$id })" class="btn btn-info">
+				            View
+				        </a>
+				        <a ui-sref="exercises.update({ id: exercise.$id })" ng-show="vm.isExerciseOwner(exercise)"
+				           class="btn btn-primary">
+				            Edit
+				        </a>
+				        <button class="btn btn-danger" ng-show="vm.isExerciseOwner(exercise)"
+				                ng-click="vm.removeExercise(exercise)">
+				            Remove
+				        </button>
+				    </div>-->
+				</div>
+			</div>
 		</div>
 	</div>
 </div>

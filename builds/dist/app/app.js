@@ -31,16 +31,19 @@ $.material.init();
 		.service('fitfire', fitfire);
 		fitfire.$inject = ['$rootScope','FIREBASE_URL','$firebaseObject','$firebaseArray'];
 		function fitfire($rootScope,FIREBASE_URL,$firebaseObject,$firebaseArray){
-			var self = this;
+			var vm = this;
 
-			var db = new Firebase(FIREBASE_URL);
-			var db_obj = $firebaseObject(db);
-			var db_arr = $firebaseArray(db);
+			vm.db = new Firebase(FIREBASE_URL);
+			var db_obj = $firebaseObject(vm.db);
+			var db_arr = $firebaseArray(vm.db);
 
-			var users_obj = db.child('Users');
+			var users_obj = vm.db.child('Users');
 			var users_arr = $firebaseArray(users_obj);
-			var exercises_obj = db.child('Exercises');
+			var exercises_obj = vm.db.child('Exercises');
 			var exercises_arr = $firebaseArray(exercises_obj);
+			this.isUser = function(name){
+				console.log(users_arr[0]);
+			};
 			this.getUsers = function(cb){
 				return users_arr.$loaded(cb);
 			};
@@ -48,7 +51,7 @@ $.material.init();
 				return exercises_arr.$loaded(cb);
 			};
 			db_obj.$loaded(function(){
-				self.db_obj = db_obj;					
+				vm.db_obj = db_obj;					
 			});
 			this.addUser = function(_user){
 				users_obj.push(_user);
@@ -166,6 +169,8 @@ $.material.init();
 			vm.exercise = {
 				full_name: null
 			}
+			var currentUser = fitfire.db.getAuth();
+			console.log(currentUser);
 			vm.addUser = function(){
 				fitfire.addUser(vm.user);
 			};
@@ -195,12 +200,12 @@ $.material.init();
 	angular
 		.module('ngFit.navbar',['ngRoute'])
 		.controller('AuthController', AuthController);
-	AuthController.$inject = ['$scope','$rootScope'];
-	function AuthController($scope,$rootScope){
+	AuthController.$inject = ['$scope','$rootScope','FIREBASE_URL','fitfire'];
+	function AuthController($scope,$rootScope,FIREBASE_URL,fitfire){
 		var vm = this;
 		$rootScope.curPath = 'navbar';
 		vm.name = "";
-		vm.ref = new Firebase("https://yanfit.firebaseio.com");
+		vm.ref = new Firebase(FIREBASE_URL);
 		vm.handle = function(promise,event){
         $.when(promise)
             .then(
@@ -232,8 +237,8 @@ $.material.init();
 			  		console.log(authData.github.username);
 			    	console.log("Authenticated successfully with payload:", authData);
 			    	deferred.resolve(authData);
+			    	fitfire.isUser(vm.name);
 			    	$rootScope.login = true;
-			    	$rootScope.name = vm.name;
 			  	});
 			  	if (event){
 					event.stopPropagation();
@@ -243,6 +248,22 @@ $.material.init();
 			});
 			return deferred.promise();
 		};
+		vm.logout = function(event){
+			if (event){
+				event.stopPropagation();
+				event.preventDefault();	
+			}
+			vm.ref.unauth();
+		};
+		vm.check = function(){
+			var currentUser = fitfire.db.getAuth();
+			if (currentUser){
+				vm.name = currentUser.github.username;
+				return true;
+			}
+			else
+				return false;
+		}
 	}
 })();
 
