@@ -5,8 +5,9 @@ $.material.init();
 	angular
 		.module('ngFit', [
 				'ngRoute',
-				'ngFit.main',
 				'ngFit.fitfire.service',
+				'ngFit.main',
+				'ngFit.edit',
 				'ngFit.about',
 				'ngFit.contact',
 				'ngFit.navbar',

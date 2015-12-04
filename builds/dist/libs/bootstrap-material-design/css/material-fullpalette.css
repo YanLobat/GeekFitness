@@ -35587,7 +35587,7 @@ fieldset[disabled] .form-control:focus:not(textarea),
 fieldset[disabled] .form-control.focus:not(textarea),
 .form-control-wrapper .form-control.focus:not(textarea),
 .form-control.focus:not(textarea) {
-  height: 28px;
+  height: 36px;
 }
 fieldset[disabled] .form-control:disabled,
 .form-control-wrapper .form-control:disabled,

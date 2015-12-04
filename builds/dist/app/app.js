@@ -5,8 +5,9 @@ $.material.init();
 	angular
 		.module('ngFit', [
 				'ngRoute',
-				'ngFit.main',
 				'ngFit.fitfire.service',
+				'ngFit.main',
+				'ngFit.edit',
 				'ngFit.about',
 				'ngFit.contact',
 				'ngFit.navbar',
@@ -39,26 +40,54 @@ $.material.init();
 
 			var users_obj = vm.db.child('Users');
 			var users_arr = $firebaseArray(users_obj);
+
 			var exercises_obj = vm.db.child('Exercises');
 			var exercises_arr = $firebaseArray(exercises_obj);
-			this.isUser = function(name){
-				console.log(users_arr[0]);
-			};
-			this.getUsers = function(cb){
-				return users_arr.$loaded(cb);
-			};
-			this.getExercises = function(cb){
-				return exercises_arr.$loaded(cb);
-			};
+
 			db_obj.$loaded(function(){
 				vm.db_obj = db_obj;					
 			});
-			this.addUser = function(_user){
+
+			vm.isUser = function(name){
+				var is = false;
+				users_obj.once("value",function(snapshot){
+					var data = snapshot.val();
+					for (var user in data){
+						if (data[user].name == name){
+							is = true;
+						}
+					}
+				});
+				if (!is){
+					vm.addUser({"name":name,"age":"","real_name":""});
+				}
+			};
+			vm.getUsers = function(cb){
+				return users_arr.$loaded(cb);
+			};
+			vm.getExercises = function(cb){
+				return exercises_arr.$loaded(cb);
+			};
+			vm.addUser = function(_user){
 				users_obj.push(_user);
 			};
-			this.addExercise = function(_exercise){
-				_exercise.added = $rootScope.name;
+			vm.addExercise = function(_exercise,_user){
+				_exercise.added = _user;
 				exercises_obj.push(_exercise);
+			};
+			vm.removeExercise = function(_exercise){
+				var exercise_url = FIREBASE_URL+'Exercises/'+_exercise.$id;
+				var removing_exercise = new Firebase(exercise_url);
+				removing_exercise.remove(
+
+					function(error) {
+  if (error) {
+    console.log('Synchronization failed');
+  } else {
+    console.log('Synchronization succeeded');
+  }
+}
+				);
 			};
 		};
 })();
@@ -143,6 +172,40 @@ $.material.init();
 			});
 	}
 })();
+;(function(){
+	'use strict';
+	angular
+		.module('ngFit.edit',['ngRoute'])
+		.config(configEdit)
+		.controller('EditCtrl', EditCtrl);
+	EditCtrl.$inject = ['$scope','$rootScope','fitfire'];
+	function EditCtrl($scope,$rootScope,fitfire){
+		var vm = this; //чтобы не путаться в областях видимости
+		vm.saveUser = function(){
+			fitfire.getUsers(function(_d){
+				vm.users = _d;
+				var currentUser = fitfire.db.getAuth();
+				for (var us in vm.users){
+					if (vm.users[us].name == currentUser.github.username){
+						fitfire.db.child('Users/'+vm.users[us].$id).update({"name":vm.users[us].name,"age": vm.age,"real_name":vm.real_name});
+					}
+				}
+			});
+		};
+		$rootScope.curPath = 'edit';
+	}
+
+	configEdit.$inject = ['$routeProvider'];
+
+	function configEdit($routeProvider){
+		$routeProvider.
+			when("/edit",{
+				templateUrl: "app/edit/edit.html",
+				controller: 'EditCtrl',
+				controllerAs: 'vm'
+			});
+	}
+})();
 ;(function(){	
 	'use strict';
 	angular
@@ -153,34 +216,63 @@ $.material.init();
 	MainCtrl.$inject = ['$scope','$rootScope','$log','fitfire'];
 
 	function MainCtrl($scope,$rootScope,$log,fitfire){
-			$rootScope.login = false;
-			var vm = this; //чтобы не путаться в областях видимости
+		$rootScope.login = false;
+		var vm = this; //чтобы не путаться в областях видимости
 
-			fitfire.getUsers(function(_d){
-				vm.users = _d;
-			});
-			fitfire.getExercises(function(_d){
-				vm.exercises = _d;
-			});
-			vm.user = {
-				name : null,
-				age : 0
-			};
-			vm.exercise = {
-				full_name: null
+		fitfire.getUsers(function(_d){
+			vm.users = _d;
+		});
+		fitfire.getExercises(function(_d){
+			vm.exercises = _d;
+		});
+		vm.all = true;
+		vm.user = {
+			name : '',
+			age : 0,
+			real_name: ''
+		};
+		vm.filters = {};
+		vm.exercise = {
+		};
+		var currentUser = fitfire.db.getAuth();
+		vm.toggleExercises = function(event){
+			if (event){
+				event.stopPropagation();
+				event.preventDefault();	
 			}
+			if (vm.all){
+				vm.filters.added = vm.name;
+			}
+			else{
+				vm.filters.added = '';
+			}
+			vm.all = !vm.all;	
+			console.log(vm.filters.added);
+		};
+		vm.addUser = function(){
+			fitfire.addUser(vm.user);
+		};
+		vm.addExercise = function(){
+			if (vm.check()){
+				vm.exercise = {};
+				fitfire.addExercise(vm.exercise,vm.name);
+			}
+		};
+		vm.removeExercise = function(_exercise){
+			if (vm.check()){
+				fitfire.removeExercise(_exercise);
+			}
+		};
+		vm.check = function(){
 			var currentUser = fitfire.db.getAuth();
-			console.log(currentUser);
-			vm.addUser = function(){
-				fitfire.addUser(vm.user);
-			};
-			vm.addExercise = function(){
-				if ($rootScope.login){
-					vm.author = $rootScope.name;
-					fitfire.addExercise(vm.exercise);
-				}
-			};
-			$rootScope.curPath = 'main';//что-то вроде глобальной переменной для использования во вьюхах
+			if (currentUser){
+				vm.name = currentUser.github.username;
+				return true;
+			}
+			else
+				return false;
+		};
+		$rootScope.curPath = 'main';//что-то вроде глобальной переменной для использования во вьюхах
 
 	}
 
@@ -199,15 +291,14 @@ $.material.init();
 	'use strict';
 	angular
 		.module('ngFit.navbar',['ngRoute'])
-		.controller('AuthController', AuthController);
-	AuthController.$inject = ['$scope','$rootScope','FIREBASE_URL','fitfire'];
-	function AuthController($scope,$rootScope,FIREBASE_URL,fitfire){
+		.controller('AuthCtrl', AuthCtrl);
+	AuthCtrl.$inject = ['$scope','$rootScope','fitfire'];
+	function AuthCtrl($scope,$rootScope,fitfire){
 		var vm = this;
 		$rootScope.curPath = 'navbar';
 		vm.name = "";
-		vm.ref = new Firebase(FIREBASE_URL);
 		vm.handle = function(promise,event){
-        $.when(promise)
+        	$.when(promise)
             .then(
             	function (authData,event) {
             		if (event){
@@ -227,7 +318,7 @@ $.material.init();
 		};
 		vm.login = function(event){
 			var deferred = $.Deferred();
-			vm.ref.authWithOAuthPopup("github", function(error, authData) {
+			fitfire.db.authWithOAuthPopup("github", function(error, authData) {
 			  if (error) {
 			    console.log("Login Failed!", error);
 			  }
@@ -238,7 +329,6 @@ $.material.init();
 			    	console.log("Authenticated successfully with payload:", authData);
 			    	deferred.resolve(authData);
 			    	fitfire.isUser(vm.name);
-			    	$rootScope.login = true;
 			  	});
 			  	if (event){
 					event.stopPropagation();
@@ -253,7 +343,7 @@ $.material.init();
 				event.stopPropagation();
 				event.preventDefault();	
 			}
-			vm.ref.unauth();
+			fitfire.db.unauth();
 		};
 		vm.check = function(){
 			var currentUser = fitfire.db.getAuth();

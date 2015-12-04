@@ -1,4 +1,4 @@
-  <div class="navbar navbar-inverse" ng-controller="AuthController as vm">
+  <div class="navbar navbar-inverse" ng-controller="AuthCtrl as vm">
       <div class="navbar-header">
           <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-responsive-collapse">
               <span class="icon-bar"></span>
@@ -8,8 +8,8 @@
           <a class="navbar-brand" href="/">Geek Fitness</a>
       </div>
       <div class="navbar-collapse collapse navbar-responsive-collapse">
-          <ul class="nav navbar-nav">
-              <li ng-class="{'active':(curPath == 'contact')}"><a href="/contact">Contact</a></li>
+          <ul class="nav navbar-nav" ng-show="vm.check()" >
+              <li ng-class="{'active':(curPath == 'edit')}"><a href="/edit">Профиль</a></li>
               <li ng-class="{'active':(curPath == 'about')}"><a href="/about">About<div class="ripple-wrapper"></div></a></li>
           </ul>
           <ul class="nav navbar-nav navbar-right">

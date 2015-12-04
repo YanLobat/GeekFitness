@@ -13,26 +13,54 @@
 
 			var users_obj = vm.db.child('Users');
 			var users_arr = $firebaseArray(users_obj);
+
 			var exercises_obj = vm.db.child('Exercises');
 			var exercises_arr = $firebaseArray(exercises_obj);
-			this.isUser = function(name){
-				console.log(users_arr[0]);
-			};
-			this.getUsers = function(cb){
-				return users_arr.$loaded(cb);
-			};
-			this.getExercises = function(cb){
-				return exercises_arr.$loaded(cb);
-			};
+
 			db_obj.$loaded(function(){
 				vm.db_obj = db_obj;					
 			});
-			this.addUser = function(_user){
+
+			vm.isUser = function(name){
+				var is = false;
+				users_obj.once("value",function(snapshot){
+					var data = snapshot.val();
+					for (var user in data){
+						if (data[user].name == name){
+							is = true;
+						}
+					}
+				});
+				if (!is){
+					vm.addUser({"name":name,"age":"","real_name":""});
+				}
+			};
+			vm.getUsers = function(cb){
+				return users_arr.$loaded(cb);
+			};
+			vm.getExercises = function(cb){
+				return exercises_arr.$loaded(cb);
+			};
+			vm.addUser = function(_user){
 				users_obj.push(_user);
 			};
-			this.addExercise = function(_exercise){
-				_exercise.added = $rootScope.name;
+			vm.addExercise = function(_exercise,_user){
+				_exercise.added = _user;
 				exercises_obj.push(_exercise);
+			};
+			vm.removeExercise = function(_exercise){
+				var exercise_url = FIREBASE_URL+'Exercises/'+_exercise.$id;
+				var removing_exercise = new Firebase(exercise_url);
+				removing_exercise.remove(
+
+					function(error) {
+  if (error) {
+    console.log('Synchronization failed');
+  } else {
+    console.log('Synchronization succeeded');
+  }
+}
+				);
 			};
 		};
 })();

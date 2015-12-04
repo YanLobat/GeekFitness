@@ -2,15 +2,14 @@
 	'use strict';
 	angular
 		.module('ngFit.navbar',['ngRoute'])
-		.controller('AuthController', AuthController);
-	AuthController.$inject = ['$scope','$rootScope','FIREBASE_URL','fitfire'];
-	function AuthController($scope,$rootScope,FIREBASE_URL,fitfire){
+		.controller('AuthCtrl', AuthCtrl);
+	AuthCtrl.$inject = ['$scope','$rootScope','fitfire'];
+	function AuthCtrl($scope,$rootScope,fitfire){
 		var vm = this;
 		$rootScope.curPath = 'navbar';
 		vm.name = "";
-		vm.ref = new Firebase(FIREBASE_URL);
 		vm.handle = function(promise,event){
-        $.when(promise)
+        	$.when(promise)
             .then(
             	function (authData,event) {
             		if (event){
@@ -30,7 +29,7 @@
 		};
 		vm.login = function(event){
 			var deferred = $.Deferred();
-			vm.ref.authWithOAuthPopup("github", function(error, authData) {
+			fitfire.db.authWithOAuthPopup("github", function(error, authData) {
 			  if (error) {
 			    console.log("Login Failed!", error);
 			  }
@@ -41,7 +40,6 @@
 			    	console.log("Authenticated successfully with payload:", authData);
 			    	deferred.resolve(authData);
 			    	fitfire.isUser(vm.name);
-			    	$rootScope.login = true;
 			  	});
 			  	if (event){
 					event.stopPropagation();
@@ -56,7 +54,7 @@
 				event.stopPropagation();
 				event.preventDefault();	
 			}
-			vm.ref.unauth();
+			fitfire.db.unauth();
 		};
 		vm.check = function(){
 			var currentUser = fitfire.db.getAuth();

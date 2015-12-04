@@ -14,3 +14,22 @@ body {
   height: 100%;
   font-size: $font-size-base;
 }
+.exercises{
+	margin-top: 40px;
+	& .panel-body{
+		min-height: 500px;
+	}
+	& .exercise{
+		display: inline-block;
+		vertical-align: top;
+		width: 33%;
+		float: none;
+		margin-bottom: 25px;
+		& author{
+			display: block;
+		}
+	}
+}
+.card-body .card-image{
+	margin-bottom: 20px;
+}
