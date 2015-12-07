@@ -32,7 +32,7 @@
 					}
 				});
 				if (!is){
-					vm.addUser({"name":name,"age":"","real_name":""});
+					vm.addUser({"name":name,"age":"","real_name":"","trainings":""});
 				}
 			};
 			vm.getUsers = function(cb){
@@ -42,6 +42,7 @@
 				return exercises_arr.$loaded(cb);
 			};
 			vm.addUser = function(_user){
+				console.log(_user);
 				users_obj.push(_user);
 			};
 			vm.addExercise = function(_exercise,_user){

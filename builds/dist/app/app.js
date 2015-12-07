@@ -8,6 +8,7 @@ $.material.init();
 				'ngFit.fitfire.service',
 				'ngFit.main',
 				'ngFit.edit',
+				'ngFit.trainings',
 				'ngFit.about',
 				'ngFit.contact',
 				'ngFit.navbar',
@@ -59,7 +60,7 @@ $.material.init();
 					}
 				});
 				if (!is){
-					vm.addUser({"name":name,"age":"","real_name":""});
+					vm.addUser({"name":name,"age":"","real_name":"","trainings":""});
 				}
 			};
 			vm.getUsers = function(cb){
@@ -69,6 +70,7 @@ $.material.init();
 				return exercises_arr.$loaded(cb);
 			};
 			vm.addUser = function(_user){
+				console.log(_user);
 				users_obj.push(_user);
 			};
 			vm.addExercise = function(_exercise,_user){
@@ -187,7 +189,7 @@ $.material.init();
 				var currentUser = fitfire.db.getAuth();
 				for (var us in vm.users){
 					if (vm.users[us].name == currentUser.github.username){
-						fitfire.db.child('Users/'+vm.users[us].$id).update({"name":vm.users[us].name,"age": vm.age,"real_name":vm.real_name});
+						fitfire.db.child('Users/'+vm.users[us].$id).update({"name":vm.users[us].name,"age": vm.age,"real_name":vm.real_name,"trainings":""});
 					}
 				}
 			});
@@ -206,6 +208,76 @@ $.material.init();
 			});
 	}
 })();
+;(function(){
+	'use strict';
+	angular
+		.module('ngFit.navbar',['ngRoute'])
+		.controller('AuthCtrl', AuthCtrl);
+	AuthCtrl.$inject = ['$scope','$rootScope','fitfire'];
+	function AuthCtrl($scope,$rootScope,fitfire){
+		var vm = this;
+		$rootScope.curPath = 'navbar';
+		vm.name = "";
+		vm.handle = function(promise,event){
+        	$.when(promise)
+            .then(
+            	function (authData,event) {
+            		if (event){
+						event.stopPropagation();
+						event.preventDefault();	
+					}
+        		}, 
+        		function (err) {
+		            console.log(err);
+		        }
+		    );
+		};
+		vm.click = function(event){
+			var socialLoginPromise;    
+            socialLoginPromise = vm.login(event);
+            vm.handle(socialLoginPromise,event);	
+		};
+		vm.login = function(event){
+			var deferred = $.Deferred();
+			fitfire.db.authWithOAuthPopup("github", function(error, authData) {
+			  if (error) {
+			    console.log("Login Failed!", error);
+			  }
+			  if (authData) {
+			  	$scope.$apply(function(){
+			  		vm.name = authData.github.username;
+			    	console.log("Authenticated successfully with payload:", authData);
+			    	deferred.resolve(authData);
+			    	fitfire.isUser(vm.name);
+			  	});
+			  	if (event){
+					event.stopPropagation();
+					event.preventDefault();	
+				}
+			  }
+			});
+			return deferred.promise();
+		};
+		vm.logout = function(event){
+			if (event){
+				event.stopPropagation();
+				event.preventDefault();	
+			}
+			fitfire.db.unauth();
+		};
+		vm.check = function(){
+			var currentUser = fitfire.db.getAuth();
+			if (currentUser){
+				vm.name = currentUser.github.username;
+				return true;
+			}
+			else
+				return false;
+		}
+	}
+})();
+
+
 ;(function(){	
 	'use strict';
 	angular
@@ -229,7 +301,8 @@ $.material.init();
 		vm.user = {
 			name : '',
 			age : 0,
-			real_name: ''
+			real_name: '',
+			trainings: null
 		};
 		vm.filters = {};
 		vm.exercise = {
@@ -290,70 +363,70 @@ $.material.init();
 ;(function(){
 	'use strict';
 	angular
-		.module('ngFit.navbar',['ngRoute'])
-		.controller('AuthCtrl', AuthCtrl);
-	AuthCtrl.$inject = ['$scope','$rootScope','fitfire'];
-	function AuthCtrl($scope,$rootScope,fitfire){
-		var vm = this;
-		$rootScope.curPath = 'navbar';
-		vm.name = "";
-		vm.handle = function(promise,event){
-        	$.when(promise)
-            .then(
-            	function (authData,event) {
-            		if (event){
-						event.stopPropagation();
-						event.preventDefault();	
-					}
-        		}, 
-        		function (err) {
-		            console.log(err);
-		        }
-		    );
-		};
-		vm.click = function(event){
-			var socialLoginPromise;    
-            socialLoginPromise = vm.login(event);
-            vm.handle(socialLoginPromise,event);	
-		};
-		vm.login = function(event){
-			var deferred = $.Deferred();
-			fitfire.db.authWithOAuthPopup("github", function(error, authData) {
-			  if (error) {
-			    console.log("Login Failed!", error);
-			  }
-			  if (authData) {
-			  	$scope.$apply(function(){
-			  		vm.name = authData.github.username;
-			  		console.log(authData.github.username);
-			    	console.log("Authenticated successfully with payload:", authData);
-			    	deferred.resolve(authData);
-			    	fitfire.isUser(vm.name);
-			  	});
-			  	if (event){
-					event.stopPropagation();
-					event.preventDefault();	
+		.module('ngFit.trainings',['ngRoute'])
+		.config(configTrainings)
+		.controller('TrainingsCtrl', TrainingsCtrl);
+	TrainingsCtrl.$inject = ['$scope','$rootScope','fitfire'];
+	function TrainingsCtrl($scope,$rootScope,fitfire){
+		var vm = this; //чтобы не путаться в областях видимости
+		vm.names = [];
+		vm.parts = [''];
+		vm.selected = [];
+		vm.weight = [];
+		vm.count = [];
+		fitfire.getExercises(function(_d){
+				vm.exercises = _d;
+				for (var ex in vm.exercises){
+					if (typeof vm.exercises[ex] == 'object')
+						vm.names[ex] = vm.exercises[ex].full_name;
 				}
-			  }
+				console.log(vm.names);
+		});
+		vm.more = function(){
+			++vm.parts.length;
+		};
+		vm.addTraining = function(){
+			vm.part = [
+			];
+			for (var i = 0; i < vm.selected.length; i++){
+				var temp = {};
+				temp.exercise = vm.selected[i];
+				temp.weight = vm.weight[i];
+				temp.count = vm.count[i];
+				vm.part.push(temp);
+			}
+			var time = new Date();
+			var curr_date = time.getDate();
+			var curr_month = time.getMonth() + 1;
+			var curr_year = time.getFullYear();
+			time = curr_year + "-" + curr_month + "-" + curr_date;
+			fitfire.getUsers(function(_d){
+				vm.users = _d;
+				var currentUser = fitfire.db.getAuth();
+				for (var us in vm.users){
+					if (vm.users[us].name == currentUser.github.username){
+						var training = {};
+						training[time] = vm.part;
+						console.log(training);
+						fitfire.db.child('Users/'+vm.users[us].$id).update({"name":vm.users[us].name,
+																			"age": vm.users[us].age,
+																			"real_name":vm.users[us].real_name,
+																			"trainings": training});
+					}
+				}
 			});
-			return deferred.promise();
 		};
-		vm.logout = function(event){
-			if (event){
-				event.stopPropagation();
-				event.preventDefault();	
-			}
-			fitfire.db.unauth();
-		};
-		vm.check = function(){
-			var currentUser = fitfire.db.getAuth();
-			if (currentUser){
-				vm.name = currentUser.github.username;
-				return true;
-			}
-			else
-				return false;
-		}
+		$rootScope.curPath = 'trainings';
+	}
+
+	configTrainings.$inject = ['$routeProvider'];
+
+	function configTrainings($routeProvider){
+		$routeProvider.
+			when("/trainings",{
+				templateUrl: "app/trainings/trainings.html",
+				controller: 'TrainingsCtrl',
+				controllerAs: 'vm'
+			});
 	}
 })();
-

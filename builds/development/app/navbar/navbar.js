@@ -36,7 +36,6 @@
 			  if (authData) {
 			  	$scope.$apply(function(){
 			  		vm.name = authData.github.username;
-			  		console.log(authData.github.username);
 			    	console.log("Authenticated successfully with payload:", authData);
 			    	deferred.resolve(authData);
 			    	fitfire.isUser(vm.name);

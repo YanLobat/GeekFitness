@@ -13,7 +13,7 @@
 				var currentUser = fitfire.db.getAuth();
 				for (var us in vm.users){
 					if (vm.users[us].name == currentUser.github.username){
-						fitfire.db.child('Users/'+vm.users[us].$id).update({"name":vm.users[us].name,"age": vm.age,"real_name":vm.real_name});
+						fitfire.db.child('Users/'+vm.users[us].$id).update({"name":vm.users[us].name,"age": vm.age,"real_name":vm.real_name,"trainings":""});
 					}
 				}
 			});

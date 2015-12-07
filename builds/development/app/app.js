@@ -8,6 +8,7 @@ $.material.init();
 				'ngFit.fitfire.service',
 				'ngFit.main',
 				'ngFit.edit',
+				'ngFit.trainings',
 				'ngFit.about',
 				'ngFit.contact',
 				'ngFit.navbar',

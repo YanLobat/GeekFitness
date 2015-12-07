@@ -21,7 +21,8 @@
 		vm.user = {
 			name : '',
 			age : 0,
-			real_name: ''
+			real_name: '',
+			trainings: null
 		};
 		vm.filters = {};
 		vm.exercise = {
