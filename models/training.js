@@ -1,15 +1,15 @@
 "use strict";
 
 module.exports = (sequelize, DataTypes) => {
-  const Exercise = sequelize.define("Exercise",
+  const Training = sequelize.define("Training",
     {
-      title: DataTypes.STRING,
-      group: DataTypes.ENUM('back', 'legs', 'chest', 'bicep', 'tricep', 'shoulders', 'forearm')
+      date: DataTypes.DATEONLY
+      exercises:
     },
     {
       classMethods: {
         associate(models) {
-          Exercise.belongsTo(models.Training, {
+          Exercise.belongsTo(models.User, {
             onDelete: "CASCADE",
             foreignKey: {
               allowNull: false
