@@ -3,22 +3,16 @@
 module.exports = (sequelize, DataTypes) => {
   const Training = sequelize.define("Training",
     {
-      date: DataTypes.DATEONLY
-      exercises:
+      date: DataTypes.DATEONLY,
     },
     {
       classMethods: {
         associate(models) {
-          Exercise.belongsTo(models.User, {
-            onDelete: "CASCADE",
-            foreignKey: {
-              allowNull: false
-            }
-          });
+          Training.hasMany(models.ExerciseInstance, {as: "exercises"});
         }
       }
     }
   );
 
-  return Exercise;
+  return Training;
 };

@@ -1,12 +1,16 @@
+'use strict';
+
 const Router = require('koa-router');
+const exercises = require('./exercises');
 const router = new Router();
 
-router.get('/', async (ctx, next) => {
-  ctx.body = {
-    message: 'Hey, welcome to the Koa v2 starter!'
-  };
-  ctx.status = 200;
-  await next();
-});
+router
+  .get('/', async (ctx, next) => {
+    console.log('I am here!');
+    ctx.body = { "message": "Hello Koa!" };
+    ctx.status = 200;
+  })
+  .use(exercises.routes())
+  .use(exercises.allowedMethods());
 
 module.exports = router;

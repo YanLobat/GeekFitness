@@ -4,7 +4,8 @@
   "description": "Simple app for tracking your progress",
   "main": "index.js",
   "scripts": {
-    "test": "test"
+    "test": "test",
+    "start": "export NODE_PATH=. && node index"
   },
   "repository": {
     "type": "git",
@@ -21,14 +22,18 @@
   },
   "homepage": "https://github.com/YanLobat/GeekFitness#readme",
   "dependencies": {
-    "koa": "^2.0.0-alpha.7",
+    "axios": "^0.16.2",
+    "grant-koa": "^3.8.0",
+    "koa": "^2.3.0",
     "koa-bodyparser": "^3.2.0",
-    "koa-helmet": "^3.1.0",
-    "koa-router": "^7.0.1",
-    "mysql": "^2.13.0",
-    "pg": "^6.1.2",
+    "koa-helmet": "^3.2.0",
+    "koa-oauth-server": "^1.0.1",
+    "koa-router": "^7.2.1",
+    "koa-session": "^5.5.0",
+    "mysql": "^2.14.1",
+    "pg": "^6.4.2",
     "pg-hstore": "^2.3.2",
-    "sequelize": "^3.30.2"
+    "sequelize": "^3.30.4"
   },
   "devDependencies": {
     "flow-bin": "^0.39.0"
