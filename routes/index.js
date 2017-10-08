@@ -1,7 +1,7 @@
 'use strict';
 
 const Router = require('koa-router');
-const exercises = require('./exercises');
+const exercises = require('./exercise');
 const router = new Router();
 
 router

@@ -2,7 +2,6 @@
 
 const Router = require('koa-router');
 const { Exercise } = require('db');
-console.log(Exercise.toString());
 const router = new Router();
 
 router
