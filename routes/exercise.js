@@ -2,7 +2,9 @@
 
 const Router = require('koa-router');
 const { Exercise } = require('db');
-const router = new Router();
+const router = new Router({
+  prefix: '/exercises'
+});
 
 router
   .get('/', async (ctx, next) => {
