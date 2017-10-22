@@ -8,7 +8,7 @@ const router = new Router({
 
 router
   .get('/', async (ctx, next) => {
-    const trainings = await Training.findAll({include: [{model: ExerciseInstance, as: 'exercises'}]});
+    const trainings = await Training.findAll({include: [{model: ExerciseInstance, as: 'exercises', include: [{model: ExerciseSet, as: 'sets'}]}]});
     ctx.body = trainings;
     ctx.status = 200;
   })
@@ -44,7 +44,7 @@ async function createInstances(exercises) {
     const createdSets = await createSets(sets);
     const exInstance = await ExerciseInstance.create({});
     await exInstance.setSets(createdSets);
-    await exInstance.addExercise(exercise);
+    await exercise.addInstance(exInstance);
     return exInstance;
   });
   return await Promise.all(result);

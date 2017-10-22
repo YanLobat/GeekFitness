@@ -17,5 +17,4 @@ router
     ctx.body = exercise.id;
     ctx.status = 201;
   });
-
 module.exports = router;

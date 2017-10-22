@@ -5,6 +5,13 @@ module.exports = (sequelize, DataTypes) => {
     {
       title: DataTypes.STRING,
       group: DataTypes.ENUM('back', 'legs', 'chest', 'bicep', 'tricep', 'shoulders', 'forearm')
+    },
+    {
+      classMethods: {
+        associate(models) {
+          Exercise.hasMany(models.ExerciseInstance, { as: "instances" });
+        }
+      }
     }
   );
   return Exercise;
